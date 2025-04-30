@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>DASS-21 中文版</title>
+  <script src="jspsych/jspsych.js"></script>
+  <script src="jspsych/plugin-html-button-response.js"></script>
+  <link href="jspsych/jspsych.css" rel="stylesheet">
+  <style>body { font-family: sans-serif; margin: 40px; transition: background-color 0.5s; }</style>
+</head>
+<body></body>
+<script>
+const jsPsych = initJsPsych();
+const items = [
+"我覺得做任何事都沒有興趣。", "我感覺一切都很空洞。", "我覺得沒有什麼能讓我快樂。",
+"我難以激起動力去做事情。", "我覺得自己毫無價值。", "我覺得生活沒有意義。",
+"我感覺自己缺乏活力。", "我感到口乾舌燥。", "我有心跳加速的感覺。",
+"我會突然感到害怕，卻找不到原因。", "我有頭暈或頭重腳輕的經驗。", "我容易感到驚慌。",
+"我感覺胸口有壓迫感。", "我常常會手心冒汗或手腳冰冷。", "我覺得難以放鬆。",
+"我處理瑣事時會變得急躁。", "我覺得無法應付生活中所有事情。", "我感到焦躁不安。",
+"我發現自己很容易因小事煩躁。", "我感到緊張。", "我覺得自己太容易被激怒。"
+];
+const timeline = [];
+const responses = [];
+
+timeline.push({type: jsPsychHtmlButtonResponse,stimulus: "<h2>DASS-21 中文版</h2><p>請依據過去一週的感受回答下列問題。</p>",choices: ["開始"]});
+for (let i = 0; i < items.length; i++) {
+  timeline.push({
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "<p>" + items[i] + "</p><p>0=完全不符合，3=非常符合</p>",
+    choices: ["0", "1", "2", "3"],
+    on_finish: function(data) { responses.push(Number(data.response)); }
+  });
+}
+timeline.push({
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function() {
+    function sum(start) { return responses.slice(start, start + 7).reduce((a, b) => a + b, 0) * 2; }
+    const d = sum(0), a = sum(7), s = sum(14);
+    function level(score) {
+      if (score <= 9) return ["正常", "#E0F7FA"];
+      if (score <= 13) return ["輕度", "#FFF9C4"];
+      if (score <= 20) return ["中度", "#FFE0B2"];
+      if (score <= 27) return ["重度", "#FFCCBC"];
+      return ["極重度", "#EF9A9A"];
+    }
+    const [dl, dc] = level(d), [al, ac] = level(a), [sl, sc] = level(s);
+    document.body.style.background = `linear-gradient(135deg, ${dc}, ${ac}, ${sc})`;
+    return `<h2>你的結果：</h2>
+      <p><strong>憂鬱：</strong> ${dl}（${d} 分）</p>
+      <p><strong>焦慮：</strong> ${al}（${a} 分）</p>
+      <p><strong>壓力：</strong> ${sl}（${s} 分）</p>`;
+  },
+  choices: ["完成"]
+});
+jsPsych.run(timeline);
+</script>
+</html>
